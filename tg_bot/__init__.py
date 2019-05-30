@@ -119,4 +119,4 @@ from tg_bot.modules.helper_funcs.handlers import CustomCommandHandler, CustomReg
 tg.RegexHandler = CustomRegexHandler
 
 if ALLOW_EXCL:
-    tg.CommandHandler = CustomCommandHandler
+tg.CommandHandler = CustomCommandHandler
