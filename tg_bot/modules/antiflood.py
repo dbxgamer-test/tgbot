@@ -34,9 +34,9 @@ def check_flood(bot: Bot, update: Update) -> str:
         return ""
 
     try:
-        chat.kick_member(user.id)
-        msg.reply_text("I like to leave the flooding to natural disasters. But you, you were just a "
-                       "disappointment. Get out.")
+        bot.restrict_chat_member(chat.id, user_id, can_send_messages=False)
+        msg.reply_text("Flooding is done by noobs. "
+                       "Pro gamers are smart and do not like to get muted. Shut up!")
 
         return "<b>{}:</b>" \
                "\n#BANNED" \
