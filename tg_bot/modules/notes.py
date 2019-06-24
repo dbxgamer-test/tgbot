@@ -50,7 +50,7 @@ def get(bot, update, notename, show_none=True, no_format=False):
                 except BadRequest as excp:
                     if excp.message == "Message to forward not found":
                         message.reply_text("This message seems to have been lost - I'll remove it "
-                                           "from your notes list.")
+                                           "from your games list.")
                         sql.rm_note(chat_id, notename)
                     else:
                         raise
@@ -59,10 +59,10 @@ def get(bot, update, notename, show_none=True, no_format=False):
                     bot.forward_message(chat_id=chat_id, from_chat_id=chat_id, message_id=note.value)
                 except BadRequest as excp:
                     if excp.message == "Message to forward not found":
-                        message.reply_text("Looks like the original sender of this note has deleted "
+                        message.reply_text("Looks like the original sender of this has deleted "
                                            "their message - sorry! Get your bot admin to start using a "
-                                           "message dump to avoid this. I'll remove this note from "
-                                           "your saved notes.")
+                                           "message dump to avoid this. I'll remove this game from "
+                                           "your saved games.")
                         sql.rm_note(chat_id, notename)
                     else:
                         raise
@@ -97,16 +97,16 @@ def get(bot, update, notename, show_none=True, no_format=False):
                 elif FILE_MATCHER.match(note.value):
                     message.reply_text("This note was an incorrectly imported file from another bot - I can't use "
                                        "it. If you really need it, you'll have to save it again. In "
-                                       "the meantime, I'll remove it from your notes list.")
+                                       "the meantime, I'll remove it from your games list.")
                     sql.rm_note(chat_id, notename)
                 else:
                     message.reply_text("This note could not be sent, as it is incorrectly formatted. Ask in "
-                                       "@MarieSupport if you can't figure out why!")
+                                       "@darkbeast842 if you can't figure out why!")
                     LOGGER.exception("Could not parse message #%s in chat %s", notename, str(chat_id))
                     LOGGER.warning("Message was: %s", str(note.value))
         return
     elif show_none:
-        message.reply_text("This note doesn't exist")
+        message.reply_text("This game doesn't exist")
 
 
 @run_async
@@ -136,7 +136,7 @@ def save(bot: Bot, update: Update):
     note_name, text, data_type, content, buttons = get_note_type(msg)
 
     if data_type is None:
-        msg.reply_text("Dude, there's no note")
+        msg.reply_text("Dude, there's no game")
         return
     
     if len(text.strip()) == 0:
@@ -169,9 +169,9 @@ def clear(bot: Bot, update: Update, args: List[str]):
         notename = args[0]
 
         if sql.rm_note(chat_id, notename):
-            update.effective_message.reply_text("Successfully removed note.")
+            update.effective_message.reply_text("Successfully removed game.")
         else:
-            update.effective_message.reply_text("That's not a note in my database!")
+            update.effective_message.reply_text("That's not a game in my database!")
 
 
 @run_async
@@ -179,7 +179,7 @@ def list_notes(bot: Bot, update: Update):
     chat_id = update.effective_chat.id
     note_list = sql.get_all_chat_notes(chat_id)
 
-    msg = "*Notes in chat:*\n"
+    msg = "*Games in chat:*\n"
     for note in note_list:
         note_name = escape_markdown(" - {}\n".format(note.name))
         if len(msg) + len(note_name) > MAX_MESSAGE_LENGTH:
@@ -187,8 +187,8 @@ def list_notes(bot: Bot, update: Update):
             msg = ""
         msg += note_name
 
-    if msg == "*Notes in chat:*\n":
-        update.effective_message.reply_text("No notes in this chat!")
+    if msg == "*Games in chat:*\n":
+        update.effective_message.reply_text("No games in this chat!")
 
     elif len(msg) != 0:
         update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
@@ -217,7 +217,7 @@ def __import_data__(chat_id, data):
 
 
 def __stats__():
-    return "{} notes, across {} chats.".format(sql.num_notes(), sql.num_chats())
+    return "{} games, across {} chats.".format(sql.num_notes(), sql.num_chats())
 
 
 def __migrate__(old_chat_id, new_chat_id):
@@ -225,24 +225,22 @@ def __migrate__(old_chat_id, new_chat_id):
 
 
 def __chat_settings__(chat_id, user_id):
-    notes = sql.get_all_chat_notes(chat_id)
-    return "There are `{}` notes in this chat.".format(len(notes))
+    games = sql.get_all_chat_notes(chat_id)
+    return "There are `{}` games played in this group.".format(len(games))
 
 
 __help__ = """
- - /get <notename>: get the note with this notename
- - #<notename>: same as /get
- - /notes or /saved: list all saved notes in this chat
+ - /get <gamename>: get the name of players playing this game with this gamename
+ - #<gamename>: same as /get
+ - /games or /saved: list all played games in this group
 
-If you would like to retrieve the contents of a note without any formatting, use `/get <notename> noformat`. This can \
-be useful when updating a current note.
 
 *Admin only:*
- - /save <notename> <notedata>: saves notedata as a note with name notename
+ - /save <gamename> <gamedata>: saves gamedata as a note with name gamename
 A button can be added to a note by using standard markdown link syntax - the link should just be prepended with a \
 `buttonurl:` section, as such: `[somelink](buttonurl:example.com)`. Check /markdownhelp for more info.
- - /save <notename>: save the replied message as a note with name notename
- - /clear <notename>: clear note with this name
+ - /save <gamename>: save the replied message as a note with name gamename
+ - /clear <gamename>: clear game with this name
 """
 
 __mod_name__ = "Notes"
@@ -253,7 +251,7 @@ HASH_GET_HANDLER = RegexHandler(r"^#[^\s]+", hash_get)
 SAVE_HANDLER = CommandHandler("save", save)
 DELETE_HANDLER = CommandHandler("clear", clear, pass_args=True)
 
-LIST_HANDLER = DisableAbleCommandHandler(["notes", "saved"], list_notes, admin_ok=True)
+LIST_HANDLER = DisableAbleCommandHandler(["games", "saved"], list_notes, admin_ok=True)
 
 dispatcher.add_handler(GET_HANDLER)
 dispatcher.add_handler(SAVE_HANDLER)
