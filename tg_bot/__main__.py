@@ -21,14 +21,18 @@ from tg_bot.modules.helper_funcs.misc import paginate_modules
 PM_START_TEXT = """
 Hi {}, my name is {}! If you have any questions on how to use me, read /help .
 
-I'm a gaming group manager bot maintained by [this wonderful person](tg://user?id={}).
+I'm a gaming group manager bot MADE by [this wonderful GAMER](tg://user?id={}). 
+I like to manage TECHNOGAMERS and help gamers out there.
+
+I am about to start a tournament framework and need ideas! Bring your ideas to @darkbeast842
+and stand a chance to win our premium offer!!
 
 Enjoy Gaming!!
 """
 
 HELP_STRINGS = """
 Hey there! My name is *{}*.
-I'm a modular gaming group management bot with a few fun extras! Have a look at the following for an idea of some of \
+I'm a modular gaming group management bot made to manage TECHNOGAMERS! Have a look at the following for an idea of some of \
 the things I can help you with.
 
 *Main* commands available:
