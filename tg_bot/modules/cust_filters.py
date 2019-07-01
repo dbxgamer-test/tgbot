@@ -1,5 +1,5 @@
 import re
-rom io import BytesIO
+from io import BytesIO
 from typing import Optional
 
 import telegram
