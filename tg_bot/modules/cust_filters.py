@@ -156,32 +156,32 @@ def reply_filter(bot: Bot, update: Update):
 
     chat_filters = sql.get_chat_triggers(chat.id)
     pattern = r"( |^|[^\w])" + re.escape("#games") + r"( |$|[^\w])"
-        if re.search(pattern, to_match, flags=re.IGNORECASE):
-            args = message.text.split(None, 1)  # use python's maxsplit to separate Cmd, gamename, and username
+    if re.search(pattern, to_match, flags=re.IGNORECASE):
+        args = message.text.split(None, 1)  # use python's maxsplit to separate Cmd, gamename, and username
 
-            extracted = split_quotes(args[1])
-            if len(extracted) < 1:
+        extracted = split_quotes(args[1])
+        if len(extracted) < 1:
                 return
 
-            if len(extracted) >= 2:
-                offset = len(extracted[1]) - len(message.text)  # set correct offset relative to command + notename
-                content, buttons = button_markdown_parser(extracted[1], entities=msg.parse_entities(), offset=offset)
-                content = content.strip()
-                if not content:
-                    msg.reply_text("There is no game name message - You can't JUST have buttons, you need a message to go with it!")
-                    return
-
-            extracted1 = split_quotes(args[2])
-            if len(extracted1) < 1:
+        if len(extracted) >= 2:
+            offset = len(extracted[1]) - len(message.text)  # set correct offset relative to command + notename
+            content, buttons = button_markdown_parser(extracted[1], entities=msg.parse_entities(), offset=offset)
+            content = content.strip()
+            if not content:
+                msg.reply_text("There is no game name message - You can't JUST have buttons, you need a message to go with it!")
                 return
 
-            if len(extracted1) >= 2:
-                offset = len(extracted1[1]) - len(message.text)  # set correct offset relative to command + notename
-                content1, buttons = button_markdown_parser(extracted[1], entities=message.parse_entities(), offset=offset)
-                content1 = content1.strip()
-                if not content1:
-                    msg.reply_text("There is no user name message - You can't JUST have buttons, you need a message to go with it!")
-                    return
+        extracted1 = split_quotes(args[2])
+        if len(extracted1) < 1:
+            return
+
+        if len(extracted1) >= 2:
+            offset = len(extracted1[1]) - len(message.text)  # set correct offset relative to command + notename
+            content1, buttons = button_markdown_parser(extracted[1], entities=message.parse_entities(), offset=offset)
+            content1 = content1.strip()
+            if not content1:
+                msg.reply_text("There is no user name message - You can't JUST have buttons, you need a message to go with it!")
+                return
             
             break
 
