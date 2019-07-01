@@ -4,7 +4,7 @@ from typing import Optional
 
 import telegram
 from telegram import ParseMode, InlineKeyboardMarkup, Message, Chat
-from telegram import Update, Bot , Message
+from telegram import Update, Bot
 from telegram.error import BadRequest
 from telegram.ext import CommandHandler, MessageHandler, DispatcherHandlerStop, run_async
 from telegram.utils.helpers import escape_markdown
@@ -154,22 +154,25 @@ def reply_filter(bot: Bot, update: Update):
     if not to_match:
         return
     
-    args = message.text.split(None, 1)  # use python's maxsplit to separate Cmd, gamename, and username
+    args = message.text.split(" ")  # use python's maxsplit to separate Cmd, gamename, and username
     note_list = sql1.get_all_chat_notes(chat_id)
+    args[0]=x
+    args[1]=y
+    args[2]=z
     
-    if args[0] == "?games":
+    if x == "?games":
         a, b, data_type, c, buttons = get_note_type(message)
-        if args[1] in note_list:
-            note = sql1.get_note(chat_id, arg[1])
+        if y in note_list:
+            note = sql1.get_note(chat_id, y)
             ttx = note.value
-            ttx = ttx + " " + arg[2]
-            sql1.add_note_to_db(chat_id, arg[1], ttx, data_type, buttons=buttons, file=content)
+            ttx = ttx + " " + z
+            sql1.add_note_to_db(chat_id, y, ttx, data_type, buttons=buttons, file=content)
             
         else:
-            ttx1 = "Players who play" + arg[1] + "are: \n" + arg[2]
-            sql1.add_note_to_db(chat_id, arg[1], ttx1, data_type, buttons=buttons, file=content)
+            ttx1 = "Players who play" + y + "are: \n" + z
+            sql1.add_note_to_db(chat_id, y, ttx1, data_type, buttons=buttons, file=content)
             
-        message.reply_text("Hurray ! Your game was added!")
+        message.reply_text("Hurray ! Your username to the game was added!")
 
 def __stats__():
     return "{} filters, across {} chats.".format(sql.num_filters(), sql.num_chats())
