@@ -193,11 +193,10 @@ def reply_filter(bot: Bot, update: Update):
         players = note.value
         players1 = note.value + extracted1
         sql1.add_note_to_db(chat_id, extracted, players1, data_type, buttons=buttons, file=content)
-
-     else:
-         newnt = "Players who play" + extracted + "are: \n" + extracted1
+    else:
+        newnt = "Players who play" + extracted + "are: \n" + extracted1
              
-         sql1.add_note_to_db(chat_id, extracted, newnt, data_type, buttons=buttons, file=content)
+        sql1.add_note_to_db(chat_id, extracted, newnt, data_type, buttons=buttons, file=content)
 
     message.reply_tect("Hurray ! Your game was added!")
 
