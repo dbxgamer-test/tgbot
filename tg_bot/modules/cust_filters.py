@@ -157,7 +157,7 @@ def reply_filter(bot: Bot, update: Update):
     args = message.text.split(None, 1)  # use python's maxsplit to separate Cmd, gamename, and username
     note_list = sql1.get_all_chat_notes(chat_id)
     
-    if args[0] == "$games":
+    if args[0] == "?games":
         a, b, data_type, c, buttons = get_note_type(message)
         if args[1] in note_list:
             note = sql1.get_note(chat_id, arg[1])
@@ -169,7 +169,7 @@ def reply_filter(bot: Bot, update: Update):
             ttx1 = "Players who play" + arg[1] + "are: \n" + arg[2]
             sql1.add_note_to_db(chat_id, arg[1], ttx1, data_type, buttons=buttons, file=content)
             
-    message.reply_text("Hurray ! Your game was added!")
+        message.reply_text("Hurray ! Your game was added!")
 
 def __stats__():
     return "{} filters, across {} chats.".format(sql.num_filters(), sql.num_chats())
