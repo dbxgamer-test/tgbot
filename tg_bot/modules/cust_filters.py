@@ -182,8 +182,6 @@ def reply_filter(bot: Bot, update: Update):
             if not content1:
                 msg.reply_text("There is no user name message - You can't JUST have buttons, you need a message to go with it!")
                 return
-            
-            break
 
     note = sql1.get_note(chat_id, extracted)
     dbx=True
