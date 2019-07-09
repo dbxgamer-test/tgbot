@@ -150,7 +150,7 @@ def save(bot: Bot, update: Update):
         sql.rm_note(chat_id, note_name)
         sql.add_note_to_db(chat_id, note_name, text2, data_type, buttons=buttons, file=content)
     else:
-        text3 = "Players who play" + note_name + "are: \n" + text
+        text3 = "Players who play " + note_name + " are: \n" + text
         sql.add_note_to_db(chat_id, note_name, text3, data_type, buttons=buttons, file=content)
 
 
@@ -252,7 +252,7 @@ be useful when updating a current game.
  - /addgame <gamename> <your_username>: Adds yourusername to the game you play
 A button can be added to a gamenote by using standard markdown link syntax - the link should just be prepended with a \
 `buttonurl:` section, as such: `[somelink](buttonurl:example.com)`. Check /markdownhelp for more info.
-- /cleargame <gamename>: Clears game from data
+ - /cleargame <gamename>: Clears game from data
 """
 
 __mod_name__ = "Games"
