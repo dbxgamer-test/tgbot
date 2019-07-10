@@ -150,34 +150,49 @@ def reply_filter(bot: Bot, update: Update):
         return
 
     chat_filters = sql.get_chat_triggers(chat.id)
-    pattern = r"( |^|[^\w])" + re.escape("#games") + r"( |$|[^\w])"
+    for keyword in chat_filters:
+        pattern = r"( |^|[^\w])" + re.escape(keyword) + r"( |$|[^\w])"
         if re.search(pattern, to_match, flags=re.IGNORECASE):
-            args = message.text.split(None, 1)  # use python's maxsplit to separate Cmd, gamename, and username
+            filt = sql.get_filter(chat.id, keyword)
+            if filt.is_sticker:
+                message.reply_sticker(filt.reply)
+            elif filt.is_document:
+                message.reply_document(filt.reply)
+            elif filt.is_image:
+                message.reply_photo(filt.reply)
+            elif filt.is_audio:
+                message.reply_audio(filt.reply)
+            elif filt.is_voice:
+                message.reply_voice(filt.reply)
+            elif filt.is_video:
+                message.reply_video(filt.reply)
+            elif filt.has_markdown:
+                buttons = sql.get_buttons(chat.id, filt.keyword)
+                keyb = build_keyboard(buttons)
+                keyboard = InlineKeyboardMarkup(keyb)
 
-            extracted = split_quotes(args[1])
-            if len(extracted) < 1:
-                return
+                try:
+                    message.reply_text(filt.reply, parse_mode=ParseMode.MARKDOWN,
+                                       disable_web_page_preview=True,
+                                       reply_markup=keyboard)
+                except BadRequest as excp:
+                    if excp.message == "Unsupported url protocol":
+                        message.reply_text("You seem to be trying to use an unsupported url protocol. Telegram "
+                                           "doesn't support buttons for some protocols, such as tg://. Please try "
+                                           "again, or ask in @MarieSupport for help.")
+                    elif excp.message == "Reply message not found":
+                        bot.send_message(chat.id, filt.reply, parse_mode=ParseMode.MARKDOWN,
+                                         disable_web_page_preview=True,
+                                         reply_markup=keyboard)
+                    else:
+                        message.reply_text("This note could not be sent, as it is incorrectly formatted. Ask in "
+                                           "@MarieSupport if you can't figure out why!")
+                        LOGGER.warning("Message %s could not be parsed", str(filt.reply))
+                        LOGGER.exception("Could not parse filter %s in chat %s", str(filt.keyword), str(chat.id))
 
-            if len(extracted) >= 2:
-                offset = len(extracted[1]) - len(message.text)  # set correct offset relative to command + notename
-                content, buttons = button_markdown_parser(extracted[1], entities=msg.parse_entities(), offset=offset)
-                content = content.strip()
-                if not content:
-                    msg.reply_text("There is no game name message - You can't JUST have buttons, you need a message to go with it!")
-                    return
-
-            extracted1 = split_quotes(args[2])
-            if len(extracted1) < 1:
-                return
-
-            if len(extracted1) >= 2:
-                offset = len(extracted1[1]) - len(message.text)  # set correct offset relative to command + notename
-                content1, buttons = button_markdown_parser(extracted[1], entities=message.parse_entities(), offset=offset)
-                content1 = content1.strip()
-                if not content1:
-                    msg.reply_text("There is no user name message - You can't JUST have buttons, you need a message to go with it!")
-                    return
-            
+            else:
+                # LEGACY - all new filters will have has_markdown set to True.
+                message.reply_text(filt.reply)
             break
 
 
