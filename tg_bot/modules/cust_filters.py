@@ -1,5 +1,4 @@
 import re
-from io import BytesIO
 from typing import Optional
 
 import telegram
@@ -14,12 +13,9 @@ from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import user_admin
 from tg_bot.modules.helper_funcs.extraction import extract_text
 from tg_bot.modules.helper_funcs.filters import CustomFilters
-from tg_bot.modules.helper_funcs.misc import build_keyboard, revert_buttons
+from tg_bot.modules.helper_funcs.misc import build_keyboard
 from tg_bot.modules.helper_funcs.string_handling import split_quotes, button_markdown_parser
 from tg_bot.modules.sql import cust_filters_sql as sql
-import tg_bot.modules.sql.notes_sql as sql1
-from tg_bot.modules.helper_funcs.msg_types import get_note_type
-from tg_bot.modules.notes import save
 
 HANDLER_GROUP = 10
 BASIC_FILTER_STRING = "*Filters in this chat:*\n"
@@ -147,32 +143,43 @@ def stop_filter(bot: Bot, update: Update):
 
 @run_async
 def reply_filter(bot: Bot, update: Update):
-    chat_id = update.effective_chat.id
     chat = update.effective_chat  # type: Optional[Chat]
     message = update.effective_message  # type: Optional[Message]
     to_match = extract_text(message)
     if not to_match:
         return
-    
-    args = message.text.split(" ")  # use python's maxsplit to separate Cmd, gamename, and username
-    note_list = sql1.get_all_chat_notes(chat_id)
-    args[0]=x
-    args[1]=y
-    args[2]=z
-    
-    if x == "?games":
-        a, b, data_type, c, buttons = get_note_type(message)
-        if y in note_list:
-            note = sql1.get_note(chat_id, y)
-            ttx = note.value
-            ttx = ttx + " " + z
-            sql1.add_note_to_db(chat_id, y, ttx, data_type, buttons=buttons, file=content)
+
+    chat_filters = sql.get_chat_triggers(chat.id)
+    pattern = r"( |^|[^\w])" + re.escape("#games") + r"( |$|[^\w])"
+        if re.search(pattern, to_match, flags=re.IGNORECASE):
+            args = message.text.split(None, 1)  # use python's maxsplit to separate Cmd, gamename, and username
+
+            extracted = split_quotes(args[1])
+            if len(extracted) < 1:
+                return
+
+            if len(extracted) >= 2:
+                offset = len(extracted[1]) - len(message.text)  # set correct offset relative to command + notename
+                content, buttons = button_markdown_parser(extracted[1], entities=msg.parse_entities(), offset=offset)
+                content = content.strip()
+                if not content:
+                    msg.reply_text("There is no game name message - You can't JUST have buttons, you need a message to go with it!")
+                    return
+
+            extracted1 = split_quotes(args[2])
+            if len(extracted1) < 1:
+                return
+
+            if len(extracted1) >= 2:
+                offset = len(extracted1[1]) - len(message.text)  # set correct offset relative to command + notename
+                content1, buttons = button_markdown_parser(extracted[1], entities=message.parse_entities(), offset=offset)
+                content1 = content1.strip()
+                if not content1:
+                    msg.reply_text("There is no user name message - You can't JUST have buttons, you need a message to go with it!")
+                    return
             
-        else:
-            ttx1 = "Players who play" + y + "are: \n" + z
-            sql1.add_note_to_db(chat_id, y, ttx1, data_type, buttons=buttons, file=content)
-            
-        message.reply_text("Hurray ! Your username to the game was added!")
+            break
+
 
 def __stats__():
     return "{} filters, across {} chats.".format(sql.num_filters(), sql.num_chats())
