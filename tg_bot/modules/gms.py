@@ -148,10 +148,12 @@ def save(bot: Bot, update: Update):
         text1 = note1.value
         text2 = text1 + " " + text
         sql.rm_note(chat_id, note_name)
-        sql.add_note_to_db(chat_id, note_name, text2, data_type, buttons=buttons, file=content)
+        data1 = note_name.lower()
+        sql.add_note_to_db(chat_id, data1, text2, data_type, buttons=buttons, file=content)
     else:
         text3 = "Players who play " + note_name + " are: \n" + text
-        sql.add_note_to_db(chat_id, note_name, text3, data_type, buttons=buttons, file=content)
+        data2 = note_name.lower()
+        sql.add_note_to_db(chat_id, data2, text3, data_type, buttons=buttons, file=content)
 
 
         
@@ -241,18 +243,19 @@ def __chat_settings__(chat_id, user_id):
 
 
 __help__ = """
- - /get <gamename>: get the game data with the users who play it.
+ - /get <gameename>: get the game with player names
  - #<gamename>: same as /get
  - /games or /saved: list all saved games in this chat
 
-If you would like to retrieve the users who play a game without any formatting, use `/get <gamename> noformat`. This can \
+If you would like to retrieve the contents of a game without any formatting, use `/get <gamename> noformat`. This can \
 be useful when updating a current game.
 
-*Admin only:*
- - /addgame <gamename> <your_username>: Adds yourusername to the game you play
-A button can be added to a gamenote by using standard markdown link syntax - the link should just be prepended with a \
+ - /addgame <gamename> <username>: saves players who play the game
+A button can be added to a note by using standard markdown link syntax - the link should just be prepended with a \
 `buttonurl:` section, as such: `[somelink](buttonurl:example.com)`. Check /markdownhelp for more info.
- - /cleargame <gamename>: Clears game from data
+ - /addgame <gamename>: save the replied message as a note with name gamename
+ *Admin only:*
+ - /cleargame <gamename>: clear games with this name
 """
 
 __mod_name__ = "Games"
